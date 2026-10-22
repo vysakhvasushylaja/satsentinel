@@ -1,0 +1,25 @@
+== A. Which recording is this window from? (random forest, time split) ==
+overall accuracy: 67.8%
+  ASTROBIO2_2022-07-24T19_25_49                 100%
+  ASTROBIO_2022-07-24T18_47_38                  10%
+  BY02_2020-07-12T11:39:50_436152kHz_192ksps    100%
+  CELESTA_2022-07-24T18_47_38                   90%
+  CELESTA_2022-07-24T19_29_02                   100%
+  FENGYUN-4A                                    100%
+  GREENCUBE_2022-07-24T18_47_38                 30%
+  NOAA-15                                       5%
+  UHF-FO                                        75%
+
+== B. Is this really X? (isolation forest trained on X's early windows) ==
+  ASTROBIO2_2022-07-24T19_25_49                 accepts own 100% | rejects others 93%
+  ASTROBIO_2022-07-24T18_47_38                  accepts own 60% | rejects others 56%
+  BY02_2020-07-12T11:39:50_436152kHz_192ksps    accepts own 50% | rejects others 99%
+  CELESTA_2022-07-24T18_47_38                   accepts own 90% | rejects others 60%
+  CELESTA_2022-07-24T19_29_02                   accepts own 95% | rejects others 0%
+  FENGYUN-4A                                    accepts own 100% | rejects others 95%
+  GREENCUBE_2022-07-24T18_47_38                 accepts own 60% | rejects others 36%
+  NOAA-15                                       accepts own 70% | rejects others 55%
+  UHF-FO                                        accepts own 85% | rejects others 59%
+
+== C. Same satellite, different recording (generalises over time?) ==
+  CELESTA: train CELESTA_2022-07-24T18_47_38 -> accepts CELESTA_2022-07-24T19_29_02 0% | rejects other satellites 69%
