@@ -2,3 +2,6 @@
 __pycache__/
 .env
 *.jar
+node_modules/
+vendor/
+.notebook/
