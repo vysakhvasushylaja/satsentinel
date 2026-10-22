@@ -18,6 +18,12 @@ def open_iq(path):
             return (np.asarray(data[a:b, 0], dtype=np.float32),
                     np.asarray(data[a:b, 1], dtype=np.float32))
         return get, data.shape[0]
+    if path.lower().endswith(".raw"):  # RTL-SDR style unsigned 8-bit IQ (checked: byte mean ~127)
+        raw = np.memmap(path, dtype="u1", mode="r")
+        def get(a, b):
+            seg = np.asarray(raw[2 * a:2 * b], dtype=np.float32) - 127.5
+            return seg[0::2], seg[1::2]
+        return get, raw.shape[0] // 2
     raw = np.memmap(path, dtype="<i2", mode="r")
     def get(a, b):
         seg = np.asarray(raw[2 * a:2 * b], dtype=np.float32)
