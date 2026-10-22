@@ -6,10 +6,11 @@ import argparse
 import textwrap
 
 from satsentinel.agents import Investigator
+from satsentinel.memory_agent import apply_memory
 from satsentinel.zetaris import query
 
 
-def format_card(card: dict, verbose: bool = False) -> str:
+def _format_base(card: dict, verbose: bool = False) -> str:
     lines = [
         f"=== Case {card['alert_id']} ===",
         f"sat_id: {card['sat_id']}",
@@ -48,6 +49,26 @@ def format_card(card: dict, verbose: bool = False) -> str:
     return "\n".join(lines)
 
 
+def format_memory(card: dict) -> str:
+    mem = card.get("memory")
+    if mem is None:
+        return ""
+    if mem == "unavailable":
+        return "memory: unavailable (decision made from data only)"
+    if not mem:
+        return "memory: no matching analyst note"
+    lines = ["memory (analyst-provided prior knowledge, not an observation):"]
+    for m in mem:
+        lines.append(f"  - {m['id']}: {m['text']}")
+    return "\n".join(lines)
+
+
+def format_card(card: dict, verbose: bool = False) -> str:
+    base = _format_base(card, verbose=verbose)
+    extra = format_memory(card)
+    return base + ("\n" + extra if extra else "")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Investigate SatSentinel alerts")
     parser.add_argument("alert_id", nargs="?", help="alert id, e.g. from SATSENTINEL.alerts")
@@ -64,10 +85,10 @@ def main() -> None:
     investigator = Investigator()
     if args.all:
         alerts = query("SELECT alert_id FROM SATSENTINEL.alerts")
-        cards = [investigator.investigate(str(row["alert_id"]).strip()) for row in alerts]
+        cards = [apply_memory(investigator.investigate(str(row["alert_id"]).strip())) for row in alerts]
         print("\n\n".join(format_card(card, verbose=args.verbose) for card in cards))
         return
-    print(format_card(investigator.investigate(args.alert_id), verbose=args.verbose))
+    print(format_card(apply_memory(investigator.investigate(args.alert_id)), verbose=args.verbose))
 
 
 if __name__ == "__main__":
