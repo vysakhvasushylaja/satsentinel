@@ -1,0 +1,20 @@
+alerts evaluated: 41
+strict accuracy (unknown counted wrong): 33/41 = 80.5%
+abstained (unknown): 0, errors: 0
+accuracy on answered alerts: 33/41 = 80.5%
+cyber attacks flagged as an attack: 22/22 = 100.0%
+non-attacks wrongly flagged as an attack: 0/19 = 0.0%
+real onboard faults wrongly flagged as an attack: 0/8 = 0.0%
+
+per-class recall:
+  onboard_fault    0/8 = 0.0%
+  replay_attack    11/11 = 100.0%
+  spoofing_attack  11/11 = 100.0%
+  no_threat        11/11 = 100.0%
+
+confusion matrix (rows = truth, columns = prediction)
+                   onboard_fault   replay_attack spoofing_attack       no_threat         unknown           error
+onboard_fault                  0               0               0               8               0               0
+replay_attack                  0              11               0               0               0               0
+spoofing_attack                0               0              11               0               0               0
+no_threat                      0               0               0              11               0               0

@@ -1,0 +1,42 @@
+alert_id,sat_id,channel,truth,pred,confidence,reason
+A-101,SAT-04,P-1,spoofing_attack,spoofing_attack,medium,one independent source (telemetry): HMAC failures and anomalous values
+A-102,SAT-04,P-1,replay_attack,replay_attack,medium,one independent source (telemetry): sequence went backwards; no HMAC failure
+A-103,SAT-04,P-1,onboard_fault,no_threat,low,"No replay, HMAC or value evidence in the window; absence of evidence in a single source is not proof of safety"
+A-104,SAT-04,P-1,no_threat,no_threat,low,"No replay, HMAC or value evidence in the window; absence of evidence in a single source is not proof of safety"
+A-105,SAT-04,P-1,onboard_fault,no_threat,low,"No replay, HMAC or value evidence in the window; absence of evidence in a single source is not proof of safety"
+A-106,SAT-04,P-1,replay_attack,replay_attack,medium,one independent source (telemetry): sequence went backwards; no HMAC failure
+A-107,SAT-04,P-1,spoofing_attack,spoofing_attack,medium,one independent source (telemetry): HMAC failures and anomalous values
+A-108,SAT-04,P-1,no_threat,no_threat,low,"No replay, HMAC or value evidence in the window; absence of evidence in a single source is not proof of safety"
+A-109,SAT-05,S-1,no_threat,no_threat,low,"No replay, HMAC or value evidence in the window; absence of evidence in a single source is not proof of safety"
+A-110,SAT-05,S-1,spoofing_attack,spoofing_attack,medium,one independent source (telemetry): HMAC failures and anomalous values
+A-111,SAT-05,S-1,no_threat,no_threat,low,"No replay, HMAC or value evidence in the window; absence of evidence in a single source is not proof of safety"
+A-112,SAT-05,S-1,replay_attack,replay_attack,medium,one independent source (telemetry): sequence went backwards; no HMAC failure
+A-113,SAT-05,S-1,spoofing_attack,spoofing_attack,medium,one independent source (telemetry): HMAC failures and anomalous values
+A-114,SAT-05,S-1,replay_attack,replay_attack,medium,one independent source (telemetry): sequence went backwards; no HMAC failure
+A-115,SAT-05,S-1,onboard_fault,no_threat,low,"No replay, HMAC or value evidence in the window; absence of evidence in a single source is not proof of safety"
+A-116,SAT-06,E-1,replay_attack,replay_attack,medium,one independent source (telemetry): sequence went backwards; no HMAC failure
+A-117,SAT-06,E-1,no_threat,no_threat,low,"No replay, HMAC or value evidence in the window; absence of evidence in a single source is not proof of safety"
+A-118,SAT-06,E-1,spoofing_attack,spoofing_attack,medium,one independent source (telemetry): HMAC failures and anomalous values
+A-119,SAT-06,E-1,spoofing_attack,spoofing_attack,medium,one independent source (telemetry): HMAC failures and anomalous values
+A-120,SAT-06,E-1,no_threat,no_threat,low,"No replay, HMAC or value evidence in the window; absence of evidence in a single source is not proof of safety"
+A-121,SAT-06,E-1,onboard_fault,no_threat,low,"No replay, HMAC or value evidence in the window; absence of evidence in a single source is not proof of safety"
+A-122,SAT-06,E-1,onboard_fault,no_threat,low,"No replay, HMAC or value evidence in the window; absence of evidence in a single source is not proof of safety"
+A-123,SAT-06,E-1,replay_attack,replay_attack,medium,one independent source (telemetry): sequence went backwards; no HMAC failure
+A-124,SAT-07,E-2,spoofing_attack,spoofing_attack,medium,one independent source (telemetry): HMAC failures and anomalous values
+A-125,SAT-07,E-2,replay_attack,replay_attack,medium,one independent source (telemetry): sequence went backwards; no HMAC failure
+A-126,SAT-07,E-2,replay_attack,replay_attack,medium,one independent source (telemetry): sequence went backwards; no HMAC failure
+A-127,SAT-07,E-2,no_threat,no_threat,low,"No replay, HMAC or value evidence in the window; absence of evidence in a single source is not proof of safety"
+A-128,SAT-07,E-2,spoofing_attack,spoofing_attack,medium,one independent source (telemetry): HMAC failures and anomalous values
+A-129,SAT-07,E-2,onboard_fault,no_threat,low,"No replay, HMAC or value evidence in the window; absence of evidence in a single source is not proof of safety"
+A-130,SAT-07,E-2,no_threat,no_threat,low,"No replay, HMAC or value evidence in the window; absence of evidence in a single source is not proof of safety"
+A-131,SAT-08,M-6,replay_attack,replay_attack,medium,one independent source (telemetry): sequence went backwards; no HMAC failure
+A-132,SAT-08,M-6,no_threat,no_threat,low,"No replay, HMAC or value evidence in the window; absence of evidence in a single source is not proof of safety"
+A-133,SAT-08,M-6,no_threat,no_threat,low,"No replay, HMAC or value evidence in the window; absence of evidence in a single source is not proof of safety"
+A-134,SAT-08,M-6,replay_attack,replay_attack,medium,one independent source (telemetry): sequence went backwards; no HMAC failure
+A-135,SAT-08,M-6,spoofing_attack,spoofing_attack,medium,one independent source (telemetry): HMAC failures and anomalous values
+A-136,SAT-08,M-6,spoofing_attack,spoofing_attack,medium,one independent source (telemetry): HMAC failures and anomalous values
+A-137,SAT-08,M-6,onboard_fault,no_threat,low,"No replay, HMAC or value evidence in the window; absence of evidence in a single source is not proof of safety"
+A-138,SAT-09,M-1,spoofing_attack,spoofing_attack,medium,one independent source (telemetry): HMAC failures and anomalous values
+A-139,SAT-09,M-1,replay_attack,replay_attack,medium,one independent source (telemetry): sequence went backwards; no HMAC failure
+A-140,SAT-09,M-1,no_threat,no_threat,low,"No replay, HMAC or value evidence in the window; absence of evidence in a single source is not proof of safety"
+A-141,SAT-09,M-1,onboard_fault,no_threat,low,"No replay, HMAC or value evidence in the window; absence of evidence in a single source is not proof of safety"
