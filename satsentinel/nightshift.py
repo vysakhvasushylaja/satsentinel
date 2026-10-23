@@ -8,7 +8,7 @@ BASE = os.environ.get("METERLESS_BASE_URL", "http://127.0.0.1:8088/v1")
 MODEL = os.environ.get("METERLESS_MODEL", "nvidia/nemotron-3-ultra-550b-a55b")
 
 
-def chat(messages, max_tokens=800, timeout=60):
+def _chat_raw(messages, max_tokens=800, timeout=60):
     token = os.environ.get("METERLESS_RUNTIME_TOKEN", "")
     body = json.dumps(
         {"model": MODEL, "messages": messages, "max_tokens": max_tokens}
@@ -34,3 +34,23 @@ def chat(messages, max_tokens=800, timeout=60):
         "latency_ms": int((time.time() - t0) * 1000),
         "receipt_id": meta.get("receipt_id"),
     }
+
+
+from satsentinel import trace as _trace  # noqa: E402
+
+
+def chat(messages, max_tokens=800, timeout=60):
+    chars = sum(len(m.get("content", "")) for m in messages)
+    try:
+        r = _chat_raw(messages, max_tokens, timeout)
+    except Exception as ex:
+        _trace.emit("nightshift_error", model=MODEL, prompt_chars=chars, error=str(ex)[:200])
+        raise
+    _trace.emit(
+        "nightshift_request",
+        model=r["model"],
+        prompt_chars=chars,
+        latency_ms=r["latency_ms"],
+        receipt_id=r["receipt_id"],
+    )
+    return r

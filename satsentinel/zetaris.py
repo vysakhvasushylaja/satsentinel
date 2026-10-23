@@ -23,7 +23,7 @@ def _connection():
     return _conn
 
 
-def query(sql: str) -> list[dict]:
+def _query_raw(sql: str) -> list[dict]:
     cur = _connection().cursor()
     try:
         cur.execute(sql)
@@ -31,3 +31,15 @@ def query(sql: str) -> list[dict]:
         return [dict(zip(cols, row)) for row in cur.fetchall()]
     finally:
         cur.close()
+
+
+import time as _time  # noqa: E402
+
+from satsentinel import trace as _trace  # noqa: E402
+
+
+def query(sql: str) -> list[dict]:
+    t0 = _time.time()
+    rows = _query_raw(sql)
+    _trace.emit("zetaris_query", sql=sql, rows=len(rows), ms=int((_time.time() - t0) * 1000))
+    return rows

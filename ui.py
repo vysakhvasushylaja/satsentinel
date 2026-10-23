@@ -11,6 +11,7 @@ ALERT_RE = re.compile(r"^A-\d{3}$")
 DECISIONS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "decisions.jsonl")
 _CACHE = {}
 _INVESTIGATOR = None
+_REAL_INVESTIGATOR = [None]
 
 
 def valid_alert_id(value):
@@ -40,15 +41,24 @@ def get_case(alert_id, refresh=False):
     if refresh or alert_id not in _CACHE:
         from satsentinel.agents import Investigator
         from satsentinel.memory_agent import apply_memory
-        if _INVESTIGATOR is None:
-            _INVESTIGATOR = Investigator()
-        _CACHE[alert_id] = apply_memory(_INVESTIGATOR.investigate(alert_id))
+        if int(alert_id[2:]) >= 100:
+            from satsentinel.real_agents import RealInvestigator
+            if _REAL_INVESTIGATOR[0] is None:
+                _REAL_INVESTIGATOR[0] = RealInvestigator()
+            card = _REAL_INVESTIGATOR[0].investigate(alert_id)
+        else:
+            if _INVESTIGATOR is None:
+                _INVESTIGATOR = Investigator()
+            card = _INVESTIGATOR.investigate(alert_id)
+        _CACHE[alert_id] = apply_memory(card)
     return _CACHE[alert_id]
 
 
 def get_alerts():
     from satsentinel.zetaris import query
-    return query("SELECT alert_id, sat_id, ts FROM SATSENTINEL.alerts ORDER BY alert_id")
+    rows = query("SELECT alert_id, sat_id, ts FROM SATSENTINEL.alerts")
+    rows += query("SELECT alert_id, sat_id, ts FROM SATSENTINEL.alerts_real")
+    return sorted(rows, key=lambda r: str(r["alert_id"]))
 
 
 PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
@@ -63,7 +73,7 @@ main{display:grid;grid-template-columns:280px 1fr;gap:16px;padding:16px 24px}
 .alert{padding:10px;border-radius:8px;cursor:pointer;border:1px solid transparent}.alert:hover{border-color:var(--line)}
 .alert.sel{background:#1c2547;border-color:var(--acc)}.alert small{color:var(--mute);display:block}
 .badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid var(--line);margin-right:6px}
-.v-replay_attack,.v-spoofing_attack{color:var(--bad);border-color:var(--bad)}.v-eclipse_false_alarm{color:var(--ok);border-color:var(--ok)}
+.v-replay_attack,.v-spoofing_attack{color:var(--bad);border-color:var(--bad)}.v-eclipse_false_alarm{color:var(--ok);border-color:var(--ok)}.v-onboard_fault{color:var(--warn);border-color:var(--warn)}.v-no_threat{color:var(--mute)}
 .c-high{color:var(--ok)}.c-medium{color:var(--warn)}.c-low{color:var(--bad)}
 h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin:18px 0 6px}
 .item{padding:8px 10px;border-left:3px solid var(--line);margin:6px 0;background:#10162b;border-radius:0 6px 6px 0}
@@ -76,7 +86,7 @@ input{width:100%;margin:8px 0;padding:8px;border-radius:8px;border:1px solid var
 .badge:empty{display:none}
 </style></head><body>
 <header><h1>SatSentinel</h1><p>Explainable satellite alert investigation</p></header>
-<main><div class="panel"><div id="alerts" class="mute">Loading alerts...</div></div>
+<main><div class="panel" style="max-height:80vh;overflow:auto"><div id="alerts" class="mute">Loading alerts...</div></div>
 <div class="panel" id="case"><span class="mute">Select an alert on the left.</span></div></main>
 <script>
 function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!==undefined&&x!==null)e.textContent=x;return e}
@@ -103,7 +113,7 @@ async function openCase(id,refresh){var box=document.getElementById('case');
 function render(box,c){box.replaceChildren();
  var bd=document.getElementById('bd-'+c.alert_id);if(bd){bd.textContent=c.verdict;bd.className='badge v-'+c.verdict}
  box.append(el('h1',null,'Case '+c.alert_id+' - '+c.sat_id));
- box.append(el('div','mute',c.ts));
+ box.append(el('div','mute',c.ts));if(c.data_note){box.append(el('div','item',c.data_note))}
  var top=el('div');top.style.margin='10px 0';
  top.append(el('span','badge v-'+c.verdict,c.verdict),el('span','badge c-'+c.confidence,'confidence: '+c.confidence));box.append(top);
  box.append(el('div','mute',c.confidence_reason));
