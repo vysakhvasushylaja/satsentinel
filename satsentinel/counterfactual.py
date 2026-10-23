@@ -29,6 +29,8 @@ def counterfactuals(card, limit=4):
     real = card.get("mode") == "real_data"
     table = _REAL if real else _SYN
     base = _rule(flags, real)
+    if card.get("verdict") not in (None, base):  # e.g. self-critique overrode the rules
+        return []
     index = {e.get("tool"): i for i, e in enumerate(card.get("evidence", []), 1)}
     out = []
     for key, (tool, desc) in table.items():

@@ -41,3 +41,15 @@ class TestCounterfactual(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestOverride(unittest.TestCase):
+    def test_skipped_when_card_verdict_differs_from_rules(self):
+        c = card(R=True)
+        c["verdict"] = "unknown"  # e.g. self-critique overrode the rule verdict
+        self.assertEqual(counterfactuals(c), [])
+
+    def test_kept_when_card_verdict_matches_rules(self):
+        c = card(R=True)
+        c["verdict"] = "replay_attack"
+        self.assertTrue(counterfactuals(c))

@@ -50,7 +50,10 @@ def get_case(alert_id, refresh=False):
             if _INVESTIGATOR is None:
                 _INVESTIGATOR = Investigator()
             card = _INVESTIGATOR.investigate(alert_id)
-        _CACHE[alert_id] = apply_memory(card)
+        card = apply_memory(card)
+        from satsentinel.counterfactual import counterfactuals
+        card["counterfactuals"] = counterfactuals(card)
+        _CACHE[alert_id] = card
     return _CACHE[alert_id]
 
 
@@ -130,6 +133,8 @@ function render(box,c){box.replaceChildren();
  top.append(el('span','badge v-'+c.verdict,c.verdict),el('span','badge c-'+c.confidence,'confidence: '+c.confidence));box.append(top);
  box.append(el('div','mute',c.confidence_reason));
  section(box,'Recommended action');box.append(el('div',null,c.recommended_action));
+ if(c.counterfactuals&&c.counterfactuals.length){section(box,'What would change this verdict (computed by the rules)');
+  c.counterfactuals.forEach(function(t){box.append(el('div','item',t))})}
  section(box,'Explanation (Nemotron via Meterless Nightshift)');
  var xp=el('div','item');var xb=el('button','sec','Explain with Nemotron');
  var xt=el('div','mute','Generated on request. It explains the evidence below and cannot change the verdict.');var xi=el('div','mute');
