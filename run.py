@@ -24,9 +24,29 @@ _load_env()
 from satsentinel import trace  # noqa: E402
 from satsentinel.agents import Investigator
 from satsentinel.explainer import add_explanation
+from satsentinel.memory_agent import apply_memory
 from satsentinel.real_agents import RealInvestigator
 
 ID = re.compile(r"^A-\d{3}$")
+
+
+def _with_memory(card):
+    try:
+        card = apply_memory(card)
+    except Exception as ex:
+        card["memory"] = "unavailable"
+        card["memory_reason"] = str(ex)[:200]
+    mem = card.get("memory")
+    ok = isinstance(mem, list)
+    trace.emit(
+        "hmem",
+        engine="meterless-hmem",
+        status="ok" if ok else "unavailable",
+        matches=len(mem) if ok else 0,
+        ids=[m["id"] for m in mem] if ok else [],
+        confidence_after=card["confidence"],
+    )
+    return card
 
 
 def run_case(alert_id, explain=True):
@@ -35,6 +55,7 @@ def run_case(alert_id, explain=True):
     run_id = trace.new_run(alert_id)
     inv = RealInvestigator() if int(alert_id[2:]) >= 100 else Investigator()
     card = inv.investigate(alert_id)
+    card = _with_memory(card)
     if explain:
         add_explanation(card)
     card["run_id"] = run_id
