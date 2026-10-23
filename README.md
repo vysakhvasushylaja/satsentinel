@@ -133,3 +133,7 @@ Synthetic scenarios and simulated RF; injected attacks; small evaluation set; re
 ## Layout
 
 `run.py` API and CLI | `satsentinel/` agents, tools, memory, explainer, trace | `make_data*.py` data generators | `evaluate_real.py`, `eval/` | `ui.py` analyst UI | `tests/` | `input_examples/`, `output_examples/` | `meterless-starter/` H-MEM bridge | `docs/`
+
+## H-MEM check
+
+The official Meterless H-MEM reference passes its own smoke tests (10/10) on my machine (23 Oct 2026). SatSentinel uses H-MEM through a small TypeScript bridge (`meterless-starter/satsentinel_memory.ts`).
