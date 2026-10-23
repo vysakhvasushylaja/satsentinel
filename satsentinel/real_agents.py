@@ -212,16 +212,26 @@ class RealInvestigator:
         return []
 
     def investigate(self, alert_id):
+        from satsentinel import trace as _trace
+
         alert = self._load_alert(alert_id)
-        findings = [self.cyber.run(alert), self.telemetry.run(alert)]
+        findings = []
+        for name, agent in (("CyberAgent", self.cyber), ("TelemetryAgent", self.telemetry)):
+            _trace.emit("handoff", frm="Investigator", to=name, alert_id=alert["alert_id"])
+            f = agent.run(alert)
+            _trace.emit("agent_result", agent=name, evidence=len(f.evidence))
+            findings.append(f)
         evidence = [ev for f in findings for ev in f.evidence]
         verdict, confidence, reason = assess_real(evidence)
         r, h, v = _flags(evidence)
         critique = self._critique(alert, verdict, findings)
+        _trace.emit("critique", draft_verdict=verdict, draft_confidence=confidence,
+                    checks=len(critique), contradicted=any(i.get("contradicts") for i in critique))
         if any(item.get("contradicts") for item in critique):
             why = "; ".join(i["summary"] for i in critique if i.get("contradicts"))
             verdict, confidence = "unknown", "low"
             reason = "Self-critique contradicted the first verdict. " + why
+        _trace.emit("final_verdict", alert_id=alert["alert_id"], verdict=verdict, confidence=confidence)
         return {
             "alert_id": alert["alert_id"],
             "sat_id": alert["sat_id"],
