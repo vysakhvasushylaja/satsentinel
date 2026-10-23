@@ -154,3 +154,17 @@ When an analyst approves or rejects a case in the UI, the decision and note are 
 ## Data attribution
 
 Real telemetry values come from the NASA SMAP and MSL anomaly dataset published with: K. Hundman, V. Constantinou, C. Laporte, I. Colwell, T. Soderstrom, "Detecting Spacecraft Anomalies Using LSTMs and Nonparametric Dynamic Thresholding", KDD 2018 (arXiv:1802.04431). The code repository (khundman/telemanom) is Apache 2.0; the dataset is anonymised with regard to time, so all timestamps in this project are synthetic. Sequence numbers, HMAC flags, replay and spoofing events are injected by this project and labelled as such.
+
+## Explanation evaluation (Track 02: does the explanation stay faithful?)
+
+`python eval_explanations.py` runs the ExplainerAgent (Nemotron via Meterless Nightshift) on all 80 synthetic alerts and checks each answer mechanically. Result (`eval/explanation_summary.txt`):
+
+- 80/80 answers accepted from the model (no template fallback)
+- 80/80 cite only evidence ids that exist
+- 80/80 contain only numbers that appear in the facts given to the model
+- 76/76 mention every counterfactual verdict that the rules computed
+- median latency 4.2 s, max 30.8 s
+
+What the first run found (`eval/explanation_summary_v1.txt`): the model often did not state the verdict at all. It named the verdict in only 14/80 answers (0/22 for `unknown`). I fixed this in code: the first line, "Verdict: <verdict>, <confidence> confidence.", is now added by the program from the rules, and the model only explains why. The verdict line is therefore present by construction, so I no longer report it as a model metric.
+
+Limits: these checks are mechanical. They do not prove that every sentence is true (for example a rounded number, or a statement such as "no contradiction", is not checked), and the benchmark is synthetic. A human spot check of a few cases is still needed.
