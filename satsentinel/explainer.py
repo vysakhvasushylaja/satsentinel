@@ -9,6 +9,7 @@ SYSTEM = (
     "You explain satellite security alert investigations to a human analyst. "
     "Use ONLY the numbered evidence given. Cite evidence as [E1], [E2]. "
     "Do not add facts. Do not change the verdict or confidence. "
+    "A first line stating the verdict and confidence is added for you; do not repeat it, explain why. "
     "Say what could not be checked. If lines under 'What would change the verdict' are given, "
     "add one sentence using only those lines and their citations. Maximum 6 sentences."
 )
@@ -46,6 +47,14 @@ def _template(card):
     return " ".join(parts)
 
 
+def _with_header(card, text):
+    """The verdict line comes from the rules, not from the model."""
+    if text.lstrip().lower().startswith("verdict:"):
+        return text
+    return "Verdict: %s, %s confidence. %s" % (
+        card["verdict"].replace("_", " "), card["confidence"], text)
+
+
 def explain(card, chat=None):
     chat = chat or nightshift.chat
     try:
@@ -61,7 +70,7 @@ def explain(card, chat=None):
         if not text or text.rstrip()[-1] not in '.!?' or not cited or not cited <= valid:
             raise ValueError("explanation not grounded in evidence")
         return {
-            "text": text,
+            "text": _with_header(card, text),
             "source": "llm",
             "model": r["model"],
             "receipt_id": r["receipt_id"],

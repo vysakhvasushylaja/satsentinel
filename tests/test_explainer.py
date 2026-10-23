@@ -53,5 +53,17 @@ class TestExplainer(unittest.TestCase):
         self.assertEqual(card["confidence"], "high")
 
 
+    def test_verdict_line_added_by_code(self):
+        out = explain(dict(CARD), chat=fake_ok)
+        self.assertEqual(out["source"], "llm")
+        self.assertTrue(out["text"].startswith("Verdict: replay attack, "))
+
+    def test_verdict_line_not_duplicated(self):
+        def chat(messages, **kw):
+            return {"text": "Verdict: replay attack, high confidence. Seen [E1].", "model": "m", "receipt_id": "r8", "latency_ms": 5}
+        out = explain(dict(CARD), chat=chat)
+        self.assertEqual(out["text"].lower().count("verdict:"), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

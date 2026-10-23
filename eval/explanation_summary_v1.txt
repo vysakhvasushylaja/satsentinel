@@ -1,0 +1,8 @@
+explanation evaluation: 80 synthetic alerts, model nvidia/nemotron-3-ultra-550b via Meterless Nightshift
+LLM answer accepted (not template fallback): 80/80 = 100.0%
+  of accepted answers:
+  cite valid evidence ids: 80/80 = 100.0%
+  every number appears in the facts given: 80/80 = 100.0%
+  names the card's verdict: 14/80 = 17.5%
+  mentions every rule-computed counterfactual verdict: 76/76 = 100.0%
+median latency: 14.9 s (max 46.8 s)
