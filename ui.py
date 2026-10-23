@@ -211,6 +211,11 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(400, {"error": "bad alert id"})
             rec = build_decision(get_case(aid), body.get("decision"), body.get("note"))
             write_decision(rec)
+            try:
+                from satsentinel.decision_memory import record_decision
+                record_decision(get_case(aid), rec["decision"], rec["note"])
+            except Exception:
+                pass
             self._json(200, rec)
         except ValueError as e:
             self._json(400, {"error": str(e)})
