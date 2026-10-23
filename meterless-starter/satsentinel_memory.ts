@@ -12,7 +12,7 @@ async function main(): Promise<void> {
   const emit = console.log;
   console.log = (...a: unknown[]) => console.error(...a); // keep stdout clean
   const { HMEM, source } = await loadHMEM();
-  const hmem = new HMEM({ persistDir: path.join(here, ".satsentinel-memory") });
+  const hmem = new HMEM({ persistDir: process.env.SATSENTINEL_MEMORY_DIR || path.join(here, ".satsentinel-memory") });
   let out: unknown;
   if (command === "remember") {
     const r = hmem.add({ content: arg, type: "general", source: "analyst" });
