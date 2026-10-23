@@ -141,3 +141,7 @@ The official Meterless H-MEM reference passes its own smoke tests (10/10) on my 
 ## Negative result: real onboard faults
 
 The real-data scenario detects 0/8 real onboard faults. I tried to improve this with window features (max z-score, largest step change, window spread, mean shift) on a development half of the alerts (22 of 41, split by alternating ids within each class). On that half, onboard faults and normal windows overlap (for example fault max z of 0.26 to 2.49 against 0.33 to 1.79 for normal windows), so no threshold separated them without overfitting. I did not change the rules and I did not look at the held-out half. Real fault detection would need a learned model; it is future work.
+
+## Counterfactuals ("what would change this verdict?")
+
+Each explanation ends with the single changes in the evidence that would change the verdict, for example "if an HMAC failure had also been found [E2], the rules would give spoofing_attack". The rules compute these by flipping one evidence flag at a time and re-running the same verdict function. Nemotron only puts them into words and must cite the evidence ids. Code: `satsentinel/counterfactual.py`, tests: `tests/test_counterfactual.py`.
