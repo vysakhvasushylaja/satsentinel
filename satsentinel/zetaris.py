@@ -65,7 +65,7 @@ def _ensure_sample_data(data_dir):
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     for csv_name, script in (("telemetry.csv", "make_data.py"), ("telemetry_real.csv", "make_data_real.py")):
         if not os.path.exists(os.path.join(data_dir, csv_name)):
-            subprocess.run([sys.executable, script], cwd=root, check=True)
+            subprocess.run([sys.executable, script], cwd=root, check=True, stdout=subprocess.DEVNULL)
 
 
 def _sample_conn():
