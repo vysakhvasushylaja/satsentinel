@@ -18,6 +18,8 @@ def _chat_raw(messages, max_tokens=800, timeout=60):
         data=body,
         headers={
             "Authorization": "Bearer " + token,
+            "meterless-app": "satsentinel",
+            "meterless-scope": "user",
             "Content-Type": "application/json",
         },
     )
