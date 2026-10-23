@@ -54,6 +54,18 @@ def get_case(alert_id, refresh=False):
     return _CACHE[alert_id]
 
 
+_EXPLAIN = {}
+
+
+def get_explanation(alert_id):
+    card = get_case(alert_id)
+    key = (alert_id, card["verdict"], card["confidence"])
+    if key not in _EXPLAIN:
+        from satsentinel.explainer import explain
+        _EXPLAIN[key] = explain(card)
+    return _EXPLAIN[key]
+
+
 def get_alerts():
     from satsentinel.zetaris import query
     rows = query("SELECT alert_id, sat_id, ts FROM SATSENTINEL.alerts")
@@ -118,6 +130,14 @@ function render(box,c){box.replaceChildren();
  top.append(el('span','badge v-'+c.verdict,c.verdict),el('span','badge c-'+c.confidence,'confidence: '+c.confidence));box.append(top);
  box.append(el('div','mute',c.confidence_reason));
  section(box,'Recommended action');box.append(el('div',null,c.recommended_action));
+ section(box,'Explanation (Nemotron via Meterless Nightshift)');
+ var xp=el('div','item');var xb=el('button','sec','Explain with Nemotron');
+ var xt=el('div','mute','Generated on request. It explains the evidence below and cannot change the verdict.');var xi=el('div','mute');
+ xb.onclick=async function(){xb.disabled=true;xt.textContent='Asking Nemotron via Nightshift...';xi.textContent='';
+  try{var x=await api('/api/explain/'+c.alert_id);xt.textContent=x.text;
+   xi.textContent=x.source==='llm'?('LLM: '+x.model+' | receipt '+x.receipt_id+' | '+x.latency_ms+' ms'):('Template fallback ('+(x.reason||'LLM unavailable')+')')}
+  catch(e){xt.textContent='Error: '+e.message}xb.disabled=false};
+ xp.append(xb,xt,xi);box.append(xp);
  section(box,'Evidence');
  (c.evidence||[]).forEach(function(e){var head=[e.agent,e.tool||e.name].filter(Boolean).join(' / ');box.append(item(asText(e),head,e.source))});
  section(box,'Self-critique');
@@ -168,6 +188,11 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(400, {"error": "bad alert id"})
                 refresh = parse_qs(u.query).get("refresh") == ["1"]
                 self._json(200, get_case(aid, refresh))
+            elif u.path.startswith("/api/explain/"):
+                aid = u.path[len("/api/explain/"):]
+                if not valid_alert_id(aid):
+                    return self._json(400, {"error": "bad alert id"})
+                self._json(200, get_explanation(aid))
             else:
                 self._json(404, {"error": "not found"})
         except Exception as e:  # shown locally only
