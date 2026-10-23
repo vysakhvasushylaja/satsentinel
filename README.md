@@ -117,7 +117,8 @@ python -m unittest tests.test_sql tests.test_verdicts tests.test_spacing tests.t
 
 ## Pre-existing work (declared)
 
-- RF fingerprinting research code, SMAP/MSL validation scripts and real IQ recordings from my earlier project `leo-telemetry-guard` (not part of this repo; the RF features in `data/rf_features_real.csv` derive from it).
+- The RF feature idea (frequency offset, phase noise and amplitude variation per window) from my earlier project `leo-telemetry-guard` (Sep 2026). `rf/extract_rf_features.py` was written for this hackathon (22 Oct 2026); the earlier project's code is not part of this repo.
+- Nine public IQ recordings, used only to compute `data/rf_features_real.csv` (the recordings themselves are not in this repo). Five SigMF recordings of 2022-07-24 (ASTROBIO, ASTROBIO2, CELESTA x2, GREENCUBE) are by Daniel Estevez, CC BY 4.0. `NOAA-15.wav`, `FENGYUN-4A.wav` and `UHF-FO.wav` were downloaded from bucket.vksdr.com/iq (SDR# recordings of 2020); I have not verified the site's licence terms. I did not record the source of `BY02_2020-07-12T11:39:50_436152kHz_192ksps.raw`.
 - NASA SMAP/MSL telemetry dataset (Hundman et al., 2018), used as a public dataset.
 - Meterless starter template (`meterless-starter/`), with my `satsentinel_memory.ts` bridge added.
 - Everything else (agents, tools, rules, evaluation, UI, API, tracing, packaging) was written during the build window.
