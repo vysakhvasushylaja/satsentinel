@@ -3,8 +3,9 @@
 logs
 __pycache__
 .env
-.satsentinel-memory
-node_modules
+**/.satsentinel-memory
+**/node_modules
+meterless-starter/vendor
 decisions.jsonl
 data/*.csv
 !data/smap_msl_subset.csv
