@@ -149,6 +149,8 @@ function render(box,c){box.replaceChildren();
  if(c.memory==='unavailable')box.append(el('div','mute','Memory unavailable. Decision made from data only.'));
  else if(!c.memory||!c.memory.length)box.append(el('div','mute','No matching analyst note.'));
  else c.memory.forEach(function(m){box.append(item(m.text,m.id,null,'mem'))});
+ if(c.decision_history&&c.decision_history.length){section(box,'Earlier analyst decisions (same satellite and verdict; shown only, never changes the verdict)');
+  c.decision_history.forEach(function(m){box.append(item(m.decision+': '+m.text,m.id,null,'mem'))})}
  var b=el('div','banner');b.append(el('b',null,'Recommendation only. Human approval required.'));
  var note=el('input');note.placeholder='Optional note';b.append(note);
  var msg=el('div','mute');

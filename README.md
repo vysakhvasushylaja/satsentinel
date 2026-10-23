@@ -145,3 +145,7 @@ The real-data scenario detects 0/8 real onboard faults. I tried to improve this 
 ## Counterfactuals ("what would change this verdict?")
 
 Each explanation ends with the single changes in the evidence that would change the verdict, for example "if an HMAC failure had also been found [E2], the rules would give spoofing_attack". The rules compute these by flipping one evidence flag at a time and re-running the same verdict function. Nemotron only puts them into words and must cite the evidence ids. Code: `satsentinel/counterfactual.py`, tests: `tests/test_counterfactual.py`.
+
+## Decision history in H-MEM
+
+When an analyst approves or rejects a case in the UI, the decision and note are also written to Meterless H-MEM, tagged with the satellite and the verdict. The next case for the same satellite and verdict shows these earlier decisions. They are display-only: they never change a verdict, and unlike an explicit analyst note they never raise confidence, so repeated approvals cannot inflate confidence. If memory is unavailable the decision is still saved to `decisions.jsonl`.
