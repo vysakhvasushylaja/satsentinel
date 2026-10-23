@@ -1,0 +1,43 @@
+{
+  "alert_id": "A-101",
+  "sat_id": "SAT-04",
+  "ts": "2026-10-01 20:23:00",
+  "mode": "real_data",
+  "data_note": "Real NASA SMAP/MSL telemetry values; seq/HMAC metadata and attacks are injected and labelled. RF and orbit evidence are not available for this dataset.",
+  "verdict": "spoofing_attack",
+  "confidence": "medium",
+  "confidence_reason": "one independent source (telemetry): HMAC failures and anomalous values",
+  "evidence": [
+    {
+      "agent": "CyberAgent",
+      "tool": "replay_check",
+      "summary": "0 row(s) with seq <= prev_seq in window 2026-10-01 20:21:00 .. 2026-10-01 20:29:00",
+      "sql": "SELECT sat_id, ts, seq, prev_seq, first_seen_ts\nFROM (\n  SELECT sat_id, ts, seq,\n         LAG(seq) OVER (PARTITION BY sat_id ORDER BY CAST(ts AS TIMESTAMP)) AS prev_seq,\n         MIN(CAST(ts AS TIMESTAMP)) OVER (PARTITION BY sat_id, seq) AS first_seen_ts\n  FROM SATSENTINEL.telemetry_real\n  WHERE sat_id = 'SAT-04'\n) t\nWHERE seq <= prev_seq\n  AND CAST(ts AS TIMESTAMP) BETWEEN CAST('2026-10-01 20:21:00' AS TIMESTAMP) AND CAST('2026-10-01 20:29:00' AS TIMESTAMP)"
+    },
+    {
+      "agent": "CyberAgent",
+      "tool": "hmac_check",
+      "summary": "4 frame(s) with hmac_valid = 0 in window 2026-10-01 20:21:00 .. 2026-10-01 20:29:00",
+      "sql": "SELECT COUNT(*) AS n\nFROM SATSENTINEL.telemetry_real\nWHERE sat_id = 'SAT-04'\n  AND hmac_valid = 0\n  AND CAST(ts AS TIMESTAMP) BETWEEN CAST('2026-10-01 20:21:00' AS TIMESTAMP) AND CAST('2026-10-01 20:29:00' AS TIMESTAMP)"
+    },
+    {
+      "agent": "TelemetryAgent",
+      "tool": "value_check",
+      "summary": "real telemetry value: max |z|=3.252 vs own-channel baseline outside window 2026-10-01 20:21:00 .. 2026-10-01 20:29:00; anomalous=True (threshold 3.0)",
+      "sql": "SELECT COUNT(*) AS n,\n       MAX(ABS(t.value - s.b_avg)) / NULLIF(MAX(s.b_std), 0) AS max_z,\n       MAX(s.b_avg) AS b_avg, MAX(s.b_std) AS b_std\nFROM SATSENTINEL.telemetry_real t\nCROSS JOIN (\n  SELECT AVG(value) AS b_avg, STDDEV_SAMP(value) AS b_std\n  FROM SATSENTINEL.telemetry_real\n  WHERE sat_id = 'SAT-04'\n    AND NOT (CAST(ts AS TIMESTAMP) BETWEEN CAST('2026-10-01 20:21:00' AS TIMESTAMP) AND CAST('2026-10-01 20:29:00' AS TIMESTAMP))\n) s\nWHERE t.sat_id = 'SAT-04'\n  AND CAST(t.ts AS TIMESTAMP) BETWEEN CAST('2026-10-01 20:21:00' AS TIMESTAMP) AND CAST('2026-10-01 20:29:00' AS TIMESTAMP)"
+    }
+  ],
+  "critique": [],
+  "not_found": [
+    "replay_check did not find seq <= prev_seq in the window",
+    "rf_check and eclipse_check are not available for this dataset (no RF or orbit data)"
+  ],
+  "recommended_action": "Recommend isolating the link and re-keying.",
+  "requires_human_approval": true,
+  "explanation": {
+    "text": "Verdict: spoofing_attack (confidence: medium). [E1] 0 row(s) with seq <= prev_seq in window 2026-10-01 20:21:00 .. 2026-10-01 20:29:00 [E2] 4 frame(s) with hmac_valid = 0 in window 2026-10-01 20:21:00 .. 2026-10-01 20:29:00 [E3] real telemetry value: max |z|=3.252 vs own-channel baseline outside window 2026-10-01 20:21:00 .. 2026-10-01 20:29:00; anomalous=True (threshold 3.0)",
+    "source": "template",
+    "reason": "<urlopen error [Errno 111] Connection refused>"
+  },
+  "run_id": "run_1792770552679"
+}

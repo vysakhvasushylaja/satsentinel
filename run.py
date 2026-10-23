@@ -8,7 +8,20 @@ import re
 import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-from satsentinel import trace
+def _load_env(path=".env"):
+    try:
+        for line in open(path):
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+    except OSError:
+        pass
+
+
+_load_env()
+
+from satsentinel import trace  # noqa: E402
 from satsentinel.agents import Investigator
 from satsentinel.explainer import add_explanation
 from satsentinel.real_agents import RealInvestigator

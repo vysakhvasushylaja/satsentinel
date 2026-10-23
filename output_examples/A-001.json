@@ -1,0 +1,63 @@
+{
+  "alert_id": "A-001",
+  "sat_id": "SAT-01",
+  "ts": "2026-10-22 04:10:00",
+  "verdict": "replay_attack",
+  "confidence": "medium",
+  "confidence_reason": "one independent source (telemetry): sequence went backwards; RF and orbit show no contradiction",
+  "evidence": [
+    {
+      "agent": "CyberAgent",
+      "tool": "replay_check",
+      "summary": "1 row(s) with seq <= prev_seq in window 2026-10-22 04:08:00 .. 2026-10-22 04:16:00; seq 51 was already seen at 2026-10-22 00:50:00",
+      "sql": "SELECT sat_id, ts, seq, prev_seq, first_seen_ts\nFROM (\n  SELECT sat_id, ts, seq,\n         LAG(seq) OVER (PARTITION BY sat_id ORDER BY CAST(ts AS TIMESTAMP)) AS prev_seq,\n         MIN(CAST(ts AS TIMESTAMP)) OVER (PARTITION BY sat_id, seq) AS first_seen_ts\n  FROM SATSENTINEL.telemetry\n  WHERE sat_id = 'SAT-01'\n) t\nWHERE seq <= prev_seq\n  AND CAST(ts AS TIMESTAMP) BETWEEN CAST('2026-10-22 04:08:00' AS TIMESTAMP) AND CAST('2026-10-22 04:16:00' AS TIMESTAMP)"
+    },
+    {
+      "agent": "CyberAgent",
+      "tool": "hmac_check",
+      "summary": "0 frame(s) with hmac_valid = 0 in window 2026-10-22 04:08:00 .. 2026-10-22 04:16:00",
+      "sql": "SELECT COUNT(*) AS n\nFROM SATSENTINEL.telemetry\nWHERE sat_id = 'SAT-01'\n  AND hmac_valid = 0\n  AND CAST(ts AS TIMESTAMP) BETWEEN CAST('2026-10-22 04:08:00' AS TIMESTAMP) AND CAST('2026-10-22 04:16:00' AS TIMESTAMP)"
+    },
+    {
+      "agent": "RFAgent",
+      "tool": "rf_check",
+      "summary": "SIMULATED RF: max |z|=0.608 vs own-sat baseline outside window 2026-10-22 04:08:00 .. 2026-10-22 04:16:00; mismatch=False",
+      "sql": "SELECT\n  w_fo, w_rt, w_pn,\n  b_fo, b_rt, b_pn,\n  s_fo, s_rt, s_pn,\n  z_fo, z_rt, z_pn,\n  GREATEST(COALESCE(z_fo, 0), COALESCE(z_rt, 0), COALESCE(z_pn, 0)) AS max_z\nFROM (\n  SELECT\n    w_fo, w_rt, w_pn, b_fo, b_rt, b_pn, s_fo, s_rt, s_pn,\n    ABS(w_fo - b_fo) / NULLIF(s_fo, 0) AS z_fo,\n    ABS(w_rt - b_rt) / NULLIF(s_rt, 0) AS z_rt,\n    ABS(w_pn - b_pn) / NULLIF(s_pn, 0) AS z_pn\n  FROM (\n    SELECT\n      AVG(CASE WHEN CAST(ts AS TIMESTAMP) BETWEEN CAST('2026-10-22 04:08:00' AS TIMESTAMP) AND CAST('2026-10-22 04:16:00' AS TIMESTAMP) THEN freq_offset_hz END) AS w_fo,\n      AVG(CASE WHEN CAST(ts AS TIMESTAMP) BETWEEN CAST('2026-10-22 04:08:00' AS TIMESTAMP) AND CAST('2026-10-22 04:16:00' AS TIMESTAMP) THEN rise_time_us END) AS w_rt,\n      AVG(CASE WHEN CAST(ts AS TIMESTAMP) BETWEEN CAST('2026-10-22 04:08:00' AS TIMESTAMP) AND CAST('2026-10-22 04:16:00' AS TIMESTAMP) THEN phase_noise_db END) AS w_pn,\n      AVG(CASE WHEN NOT (CAST(ts AS TIMESTAMP) BETWEEN CAST('2026-10-22 04:08:00' AS TIMESTAMP) AND CAST('2026-10-22 04:16:00' AS TIMESTAMP)) THEN freq_offset_hz END) AS b_fo,\n      AVG(CASE WHEN NOT (CAST(ts AS TIMESTAMP) BETWEEN CAST('2026-10-22 04:08:00' AS TIMESTAMP) AND CAST('2026-10-22 04:16:00' AS TIMESTAMP)) THEN rise_time_us END) AS b_rt,\n      AVG(CASE WHEN NOT (CAST(ts AS TIMESTAMP) BETWEEN CAST('2026-10-22 04:08:00' AS TIMESTAMP) AND CAST('2026-10-22 04:16:00' AS TIMESTAMP)) THEN phase_noise_db END) AS b_pn,\n      STDDEV_SAMP(CASE WHEN NOT (CAST(ts AS TIMESTAMP) BETWEEN CAST('2026-10-22 04:08:00' AS TIMESTAMP) AND CAST('2026-10-22 04:16:00' AS TIMESTAMP)) THEN freq_offset_hz END) AS s_fo,\n      STDDEV_SAMP(CASE WHEN NOT (CAST(ts AS TIMESTAMP) BETWEEN CAST('2026-10-22 04:08:00' AS TIMESTAMP) AND CAST('2026-10-22 04:16:00' AS TIMESTAMP)) THEN rise_time_us END) AS s_rt,\n      STDDEV_SAMP(CASE WHEN NOT (CAST(ts AS TIMESTAMP) BETWEEN CAST('2026-10-22 04:08:00' AS TIMESTAMP) AND CAST('2026-10-22 04:16:00' AS TIMESTAMP)) THEN phase_noise_db END) AS s_pn\n    FROM SATSENTINEL.rf_observations_simulated\n    WHERE sat_id = 'SAT-01'\n  ) stats\n) zscores"
+    },
+    {
+      "agent": "OrbitAgent",
+      "tool": "eclipse_check",
+      "summary": "ts 2026-10-22 04:10:00 is not inside an orbit_events window",
+      "sql": "SELECT sat_id, start_ts, end_ts, event\nFROM SATSENTINEL.orbit_events\nWHERE sat_id = 'SAT-01'\n  AND CAST('2026-10-22 04:10:00' AS TIMESTAMP) BETWEEN CAST(start_ts AS TIMESTAMP) AND CAST(end_ts AS TIMESTAMP)"
+    }
+  ],
+  "critique": [
+    {
+      "check": "replay_seq_seen_earlier",
+      "summary": "Replay corroborated: seq 51 was already seen at 2026-10-22 00:50:00",
+      "contradicts": false,
+      "evidence": [
+        {
+          "tool": "replay_check",
+          "source": "telemetry",
+          "supports": true,
+          "summary": "1 row(s) with seq <= prev_seq in window 2026-10-22 04:08:00 .. 2026-10-22 04:16:00; seq 51 was already seen at 2026-10-22 00:50:00",
+          "sql": "SELECT sat_id, ts, seq, prev_seq, first_seen_ts\nFROM (\n  SELECT sat_id, ts, seq,\n         LAG(seq) OVER (PARTITION BY sat_id ORDER BY CAST(ts AS TIMESTAMP)) AS prev_seq,\n         MIN(CAST(ts AS TIMESTAMP)) OVER (PARTITION BY sat_id, seq) AS first_seen_ts\n  FROM SATSENTINEL.telemetry\n  WHERE sat_id = 'SAT-01'\n) t\nWHERE seq <= prev_seq\n  AND CAST(ts AS TIMESTAMP) BETWEEN CAST('2026-10-22 04:08:00' AS TIMESTAMP) AND CAST('2026-10-22 04:16:00' AS TIMESTAMP)"
+        }
+      ]
+    }
+  ],
+  "not_found": [
+    "hmac_check found no frames with hmac_valid = 0 in the window",
+    "rf_check (SIMULATED RF) found no window vs own-sat baseline mismatch",
+    "eclipse_check: ts is not inside an orbit_events window"
+  ],
+  "recommended_action": "Recommend quarantine of the affected link/session.",
+  "requires_human_approval": true,
+  "explanation": {
+    "text": "Verdict: replay_attack (confidence: medium). [E1] 1 row(s) with seq <= prev_seq in window 2026-10-22 04:08:00 .. 2026-10-22 04:16:00; seq 51 was already seen at 2026-10-22 00:50:00 [E2] 0 frame(s) with hmac_valid = 0 in window 2026-10-22 04:08:00 .. 2026-10-22 04:16:00 [E3] SIMULATED RF: max |z|=0.608 vs own-sat baseline outside window 2026-10-22 04:08:00 .. 2026-10-22 04:16:00; mismatch=False [E4] ts 2026-10-22 04:10:00 is not inside an orbit_events window",
+    "source": "template",
+    "reason": "<urlopen error [Errno 111] Connection refused>"
+  },
+  "run_id": "run_1792770552085"
+}
