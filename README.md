@@ -124,7 +124,7 @@ python -m unittest tests.test_sql tests.test_verdicts tests.test_spacing tests.t
 
 ## AI assistance
 
-Most code was written with Claude (claude.ai chat) under my direction; I ran, tested and committed it. Cursor was used earlier in the build (`docs/` has the evidence). The runtime LLM is Nemotron through Nightshift.
+Most code was written with Claude (claude.ai chat) under my direction; I ran, tested and committed it. Cursor (free tier) was used in the early stage; I stopped using it because I do not have a Pro plan. The runtime LLM is Nemotron through Nightshift.
 
 ## Limitations
 
