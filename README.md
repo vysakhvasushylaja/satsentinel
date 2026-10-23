@@ -149,3 +149,7 @@ Each explanation ends with the single changes in the evidence that would change 
 ## Decision history in H-MEM
 
 When an analyst approves or rejects a case in the UI, the decision and note are also written to Meterless H-MEM, tagged with the satellite and the verdict. The next case for the same satellite and verdict shows these earlier decisions. They are display-only: they never change a verdict, and unlike an explicit analyst note they never raise confidence, so repeated approvals cannot inflate confidence. If memory is unavailable the decision is still saved to `decisions.jsonl`.
+
+## Data attribution
+
+Real telemetry values come from the NASA SMAP and MSL anomaly dataset published with: K. Hundman, V. Constantinou, C. Laporte, I. Colwell, T. Soderstrom, "Detecting Spacecraft Anomalies Using LSTMs and Nonparametric Dynamic Thresholding", KDD 2018 (arXiv:1802.04431). The code repository (khundman/telemanom) is Apache 2.0; the dataset is anonymised with regard to time, so all timestamps in this project are synthetic. Sequence numbers, HMAC flags, replay and spoofing events are injected by this project and labelled as such.
