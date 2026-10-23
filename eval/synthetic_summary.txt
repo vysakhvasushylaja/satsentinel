@@ -1,0 +1,40 @@
+synthetic benchmark: 80 alerts, 10 satellites, 10 cause types (RF is SIMULATED; truth = what was injected)
+'other' (onboard fault, benign noise) is correct only when the agent abstains (unknown).
+
+FULL SYSTEM
+strict accuracy: 74/80 = 92.5%
+attacks given the correct attack verdict: 42/48 = 87.5%
+eclipse false alarms recognised: 16/16 = 100.0%
+non-attacks wrongly called an attack: 0/32 = 0.0%
+
+per cause type (full system)
+  benign_noise         8/8 correct   verdicts: {'unknown': 8}
+  eclipse_benign       8/8 correct   verdicts: {'eclipse_false_alarm': 8}
+  eclipse_rf_glitch    8/8 correct   verdicts: {'eclipse_false_alarm': 8}
+  onboard_fault        8/8 correct   verdicts: {'unknown': 8}
+  replay_clean         8/8 correct   verdicts: {'replay_attack': 8}
+  replay_in_eclipse    8/8 correct   verdicts: {'replay_attack': 8}
+  replay_rf_mismatch   8/8 correct   verdicts: {'replay_attack': 8}
+  spoof_hmac_only      8/8 correct   verdicts: {'spoofing_attack': 8}
+  spoof_hmac_rf        8/8 correct   verdicts: {'spoofing_attack': 8}
+  spoof_rf_only        2/8 correct   verdicts: {'spoofing_attack': 2, 'unknown': 6}
+
+confusion matrix (rows = truth, columns = prediction)
+                           replay_attack     spoofing_attack eclipse_false_alarm             unknown               error
+replay_attack                         24                   0                   0                   0                   0
+spoofing_attack                        0                  18                   0                   6                   0
+eclipse_false_alarm                    0                   0                  16                   0                   0
+other                                  0                   0                   0                  16                   0
+
+accuracy by confidence level (full system)
+  high    n=4 correct=4
+  medium  n=54 correct=54
+  low     n=22 correct=16
+
+ABLATION (one evidence source switched off)
+config        accuracy    attacks   eclipse false-attack   unknown
+full             92.5%     42/48     16/16         0/32         22
+no_rf            90.0%     40/48     16/16         0/32         24
+no_orbit         72.5%     42/48      0/16         0/32         38
+no_cyber         47.5%      6/48     16/16         0/32         58
+cyber_only       70.0%     40/48      0/16         0/32         40

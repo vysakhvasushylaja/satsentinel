@@ -80,6 +80,8 @@ def _sample_conn():
     con.execute("CREATE SCHEMA SATSENTINEL")
     for t in _SAMPLE_TABLES:
         path = os.path.join(data_dir, t + ".csv")
+        if not os.path.exists(path):
+            continue
         con.execute("CREATE VIEW SATSENTINEL.%s AS SELECT * FROM read_csv_auto('%s')" % (t, path))
     _duck = con
     return con

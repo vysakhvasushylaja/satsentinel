@@ -16,3 +16,4 @@ data/telemetry_real.csv
 data/alerts_real.csv
 data/ground_truth_real_eval_only.csv
 logs/
+data_eval/
