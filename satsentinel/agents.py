@@ -485,6 +485,7 @@ class Investigator:
             "evidence": _evidence_rows(findings),
             "critique": critique,
             "not_found": _not_found(flags["R"], flags["H"], flags["F"], flags["E"]),
+            "flags": flags,
             "recommended_action": ACTIONS[verdict],
             "requires_human_approval": True,
         }

@@ -3,12 +3,14 @@ The LLM can only explain. It cannot change verdict or confidence."""
 import re
 
 from satsentinel import nightshift
+from satsentinel.counterfactual import counterfactuals
 
 SYSTEM = (
     "You explain satellite security alert investigations to a human analyst. "
     "Use ONLY the numbered evidence given. Cite evidence as [E1], [E2]. "
     "Do not add facts. Do not change the verdict or confidence. "
-    "Say what could not be checked. Maximum 5 sentences."
+    "Say what could not be checked. If lines under 'What would change the verdict' are given, "
+    "add one sentence using only those lines and their citations. Maximum 6 sentences."
 )
 
 
@@ -29,6 +31,10 @@ def _facts(card):
         lines.append("Self-critique: %s" % c)
     for n in _as_list(card.get("not_found")):
         lines.append("Not found: %s" % n)
+    cf = counterfactuals(card)
+    if cf:
+        lines.append("What would change the verdict (computed by the rules, not by you):")
+        lines.extend("- " + c for c in cf)
     return "\n".join(lines)
 
 
@@ -36,6 +42,7 @@ def _template(card):
     parts = ["Verdict: %s (confidence: %s)." % (card["verdict"], card["confidence"])]
     for i, e in enumerate(card["evidence"], 1):
         parts.append("[E%d] %s" % (i, e["summary"]))
+    parts.extend(counterfactuals(card)[:2])
     return " ".join(parts)
 
 
@@ -51,7 +58,7 @@ def explain(card, chat=None):
         text = r["text"]
         cited = set(re.findall(r"\[E(\d+)\]", text))
         valid = {str(i) for i in range(1, len(card["evidence"]) + 1)}
-        if not text or not cited or not cited <= valid:
+        if not text or text.rstrip()[-1] not in '.!?' or not cited or not cited <= valid:
             raise ValueError("explanation not grounded in evidence")
         return {
             "text": text,

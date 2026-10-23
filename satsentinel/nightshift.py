@@ -8,7 +8,7 @@ BASE = os.environ.get("METERLESS_BASE_URL", "http://127.0.0.1:8088/v1")
 MODEL = os.environ.get("METERLESS_MODEL", "nvidia/nemotron-3-ultra-550b-a55b")
 
 
-def _chat_raw(messages, max_tokens=800, timeout=60):
+def _chat_raw(messages, max_tokens=2000, timeout=90):
     token = os.environ.get("METERLESS_RUNTIME_TOKEN", "")
     body = json.dumps(
         {"model": MODEL, "messages": messages, "max_tokens": max_tokens}
@@ -41,7 +41,7 @@ def _chat_raw(messages, max_tokens=800, timeout=60):
 from satsentinel import trace as _trace  # noqa: E402
 
 
-def chat(messages, max_tokens=800, timeout=60):
+def chat(messages, max_tokens=2000, timeout=90):
     chars = sum(len(m.get("content", "")) for m in messages)
     try:
         r = _chat_raw(messages, max_tokens, timeout)

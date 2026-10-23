@@ -244,6 +244,7 @@ class RealInvestigator:
             "evidence": _evidence_rows(findings),
             "critique": critique,
             "not_found": _not_found(r, h, v),
+            "flags": {"R": r, "H": h, "V": v},
             "recommended_action": ACTIONS[verdict],
             "requires_human_approval": True,
         }
