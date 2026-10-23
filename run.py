@@ -6,7 +6,8 @@ import json
 import os
 import re
 import sys
-from http.server import BaseHTTPRequestHandler, HTTPServer
+import threading
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 def _load_env(path=".env"):
     try:
@@ -63,7 +64,12 @@ def run_case(alert_id, explain=True):
     return card
 
 
+_LOCK = threading.Lock()  # one investigation at a time
+
+
 class Handler(BaseHTTPRequestHandler):
+    timeout = 15  # drop idle connections
+
     def _send(self, code, obj):
         body = json.dumps(obj, default=str, indent=2).encode()
         self.send_response(code)
@@ -83,7 +89,8 @@ class Handler(BaseHTTPRequestHandler):
         try:
             n = int(self.headers.get("Content-Length", 0))
             req = json.loads(self.rfile.read(n) or b"{}")
-            card = run_case(req.get("alert_id"), req.get("explain", True))
+            with _LOCK:
+                card = run_case(req.get("alert_id"), req.get("explain", True))
             self._send(200, card)
         except (ValueError, json.JSONDecodeError) as ex:
             self._send(400, {"error": str(ex)})
@@ -102,7 +109,7 @@ def main():
     host = os.environ.get("HOST", "127.0.0.1")
     port = int(os.environ.get("PORT", "8000"))
     print("SatSentinel listening on %s:%d (POST /run)" % (host, port), file=sys.stderr)
-    HTTPServer((host, port), Handler).serve_forever()
+    ThreadingHTTPServer((host, port), Handler).serve_forever()
 
 
 if __name__ == "__main__":

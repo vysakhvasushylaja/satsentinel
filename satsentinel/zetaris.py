@@ -41,11 +41,15 @@ def _query_raw(sql: str) -> list[dict]:
 import time as _time  # noqa: E402
 
 from satsentinel import trace as _trace  # noqa: E402
+import threading as _threading  # noqa: E402
+
+_QLOCK = _threading.Lock()
 
 
 def query(sql: str) -> list[dict]:
     t0 = _time.time()
-    rows = _query_raw(sql)
+    with _QLOCK:
+        rows = _query_raw(sql)
     _trace.emit("zetaris_query", sql=sql, rows=len(rows), engine=("duckdb-sample" if os.environ.get("SAMPLE_MODE") == "1" else "zetaris"), ms=int((_time.time() - t0) * 1000))
     return rows
 

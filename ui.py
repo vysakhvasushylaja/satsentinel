@@ -4,7 +4,7 @@ import json
 import os
 import re
 from datetime import datetime, timezone
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
 ALERT_RE = re.compile(r"^A-\d{3}$")
@@ -142,6 +142,8 @@ loadAlerts();
 
 
 class Handler(BaseHTTPRequestHandler):
+    timeout = 15  # drop idle browser pre-connections
+
     def _send(self, code, body, ctype="application/json"):
         data = body.encode("utf-8") if isinstance(body, str) else body
         self.send_response(code)
@@ -196,7 +198,7 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     print("SatSentinel UI on http://localhost:8080  (Ctrl+C to stop)")
-    HTTPServer(("127.0.0.1", 8080), Handler).serve_forever()
+    ThreadingHTTPServer(("127.0.0.1", 8080), Handler).serve_forever()
 
 
 if __name__ == "__main__":
