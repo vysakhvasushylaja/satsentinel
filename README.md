@@ -168,3 +168,11 @@ Real telemetry values come from the NASA SMAP and MSL anomaly dataset published 
 What the first run found (`eval/explanation_summary_v1.txt`): the model often did not state the verdict at all. It named the verdict in only 14/80 answers (0/22 for `unknown`). I fixed this in code: the first line, "Verdict: <verdict>, <confidence> confidence.", is now added by the program from the rules, and the model only explains why. The verdict line is therefore present by construction, so I no longer report it as a model metric.
 
 Limits: these checks are mechanical. They do not prove that every sentence is true (for example a rounded number, or a statement such as "no contradiction", is not checked), and the benchmark is synthetic. A human spot check of a few cases is still needed.
+
+## Proof of the real Zetaris run
+
+The default Docker image uses SAMPLE_MODE (same SQL on DuckDB) so anyone can run it without accounts. The full mode sends the same SQL to the Zetaris AI Data Gateway over JDBC.
+
+`docs/zetaris-run-trace.jsonl` is the trace of one case (A-101, real-data scenario) run against a live Zetaris gateway. Every `zetaris_query` line has `"engine": "zetaris"`, the exact SQL, the row count and the time in ms. A sample-mode run shows `"engine": "duckdb-sample"` instead.
+
+Reproduce: start the Zetaris Docker stack, then `export ZETARIS_PASSWORD=...` and run `python investigate_real.py A-101`. The password is read only from the environment and is never written to logs or files.
