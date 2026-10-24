@@ -1,6 +1,6 @@
 """REAL-data scenario.
 REAL: telemetry values + real anomaly intervals (NASA SMAP/MSL, Hundman et al. 2018).
-SYNTHETIC (added by us, labelled): seq/hmac_valid metadata, injected replay/spoofing events, benign alert times."""
+SYNTHETIC (added by me, labelled): seq/hmac_valid metadata, injected replay/spoofing events, benign alert times."""
 import csv
 import random
 from collections import defaultdict

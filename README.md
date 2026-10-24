@@ -176,3 +176,9 @@ The default Docker image uses SAMPLE_MODE (same SQL on DuckDB) so anyone can run
 `docs/zetaris-run-trace.jsonl` is the trace of one case (A-101, real-data scenario) run against a live Zetaris gateway. Every `zetaris_query` line has `"engine": "zetaris"`, the exact SQL, the row count and the time in ms. A sample-mode run shows `"engine": "duckdb-sample"` instead.
 
 Reproduce: start the Zetaris Docker stack, then `export ZETARIS_PASSWORD=...` and run `python investigate_real.py A-101`. The password is read only from the environment and is never written to logs or files.
+
+## What does the language model add?
+
+The verdict, the confidence, the evidence and the counterfactuals ("what would change this verdict") are all computed by rules and SQL. The model (Nemotron through Meterless Nightshift) only turns them into a readable explanation. It cannot change the verdict, and the code rejects any explanation that cites an unknown evidence id.
+
+There is also a template explanation without any model. It is used as a labelled fallback when Nightshift is unreachable. The explanation evaluation (80 cases) checks that model explanations are accepted, cite valid evidence and use grounded numbers. It does not measure whether analysts prefer the model text over the template. That added value is not measured yet.
