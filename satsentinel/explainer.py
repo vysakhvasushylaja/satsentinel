@@ -42,7 +42,7 @@ def _facts(card):
 def _template(card):
     parts = ["Verdict: %s (confidence: %s)." % (card["verdict"], card["confidence"])]
     for i, e in enumerate(card["evidence"], 1):
-        parts.append("[E%d] %s" % (i, e["summary"]))
+        parts.append("[E%d] %s." % (i, e["summary"].rstrip(".;: ")))
     parts.extend(counterfactuals(card)[:2])
     return " ".join(parts)
 
