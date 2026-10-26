@@ -75,6 +75,31 @@ python ui.py                                                  # analyst UI on ht
 python evaluate_real.py                                       # honest evaluation -> eval/real_summary.txt
 ```
 
+## Architecture
+
+```mermaid
+flowchart TD
+    A[Security alert] --> O[Orchestrator]
+    O --> C[Cyber agent: replay and HMAC checks]
+    O --> R[RF agent]
+    O --> B[Orbit agent: eclipse check]
+    O --> T[Telemetry agent: real NASA data]
+    C --> Z[(Zetaris: SQL evidence)]
+    R --> Z
+    B --> Z
+    T --> Z
+    Z --> V[Rules: verdict, independent sources, confidence]
+    M[(H-MEM: analyst notes, past decisions)] --> V
+    V --> S[Self-critique: can overturn the first verdict]
+    S --> V
+    V --> X[Counterfactuals computed by rules]
+    X --> L[Nemotron via Nightshift: explains only, must cite evidence IDs]
+    L --> H[Human approves]
+    H --> M
+```
+
+The rules decide the verdict and confidence. The language model cannot change either; if it fails, a labelled template explanation is used. Every evidence line carries the SQL that was run.
+
 ## Where the sponsor technology is used
 
 - **Zetaris AI Data Gateway.** All evidence comes from Spark SQL run through Zetaris over JDBC. Each evidence line in the card carries its SQL (`evidence[].sql`), and every query is written to the trace (`zetaris_query`).
