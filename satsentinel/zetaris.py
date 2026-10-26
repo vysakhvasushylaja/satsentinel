@@ -27,7 +27,7 @@ def _connection():
 
 
 def _query_raw(sql: str) -> list[dict]:
-    if os.environ.get("SAMPLE_MODE") == "1":
+    if os.environ.get("SAMPLE_MODE", "").strip().lower() in ("1", "true", "yes"):
         return _sample_query(sql)
     cur = _connection().cursor()
     try:
@@ -50,7 +50,7 @@ def query(sql: str) -> list[dict]:
     t0 = _time.time()
     with _QLOCK:
         rows = _query_raw(sql)
-    _trace.emit("zetaris_query", sql=sql, rows=len(rows), engine=("duckdb-sample" if os.environ.get("SAMPLE_MODE") == "1" else "zetaris"), ms=int((_time.time() - t0) * 1000))
+    _trace.emit("zetaris_query", sql=sql, rows=len(rows), engine=("duckdb-sample" if os.environ.get("SAMPLE_MODE", "").strip().lower() in ("1", "true", "yes") else "zetaris"), ms=int((_time.time() - t0) * 1000))
     return rows
 
 
